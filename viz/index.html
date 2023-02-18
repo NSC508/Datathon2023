@@ -6,9 +6,16 @@
   </head>
   <body>
     <h1>Crime in Seattle</h1>
-    <div id="crime-tot"></div>
+    <div>
+      <div id="crime-tot"></div>
+    </div>
+    <div>
+      <input type="number" min="2008" max="2023" value="2022" id="year-select">
+      <input type="text" id="neighbor-select">
+
+      <div id="crime-circle"></div>
+    </div>
     <div id="crime-pack"></div>
     <script src="crimetot.js"></script>
-    <script src="crimepack.js"></script>
   </body>
 </html>
