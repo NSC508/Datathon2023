@@ -73,7 +73,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
 })
 
 d3.json("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighboryearoffensesum.json").then(function (data) {
-  
+  console.log(data)
   const hierarchy = d3.hierarchy(data)
     .sum(d => d.n);
 
