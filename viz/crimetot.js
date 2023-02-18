@@ -2,7 +2,12 @@ const margin = { top: 20, right: 20, bottom: 30, left: 40 };
 const width = 500 - margin.left - margin.right;
 const height = 300 - margin.top - margin.bottom;
 
-var svg = d3.select("#crime-tot")
+var crimeTotalSvg = d3.select("#crime-tot")
+  .append('svg')
+  .attr('width', 500)
+  .attr('height', 300);
+
+var crimePackSvg = d3.select("#crime-pack")
   .append('svg')
   .attr('width', 500)
   .attr('height', 300);
@@ -32,13 +37,13 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
     .tickSizeOuter(0)
     .tickPadding(10);
 
-  svg.append("g")
+  crimeTotalSvg.append("g")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis)
     .selectAll("line")
     .attr("stroke", "lightgrey");;
 
-  svg.append("g")
+  crimeTotalSvg.append("g")
     .call(yAxis)
     .selectAll("line")
     .attr("stroke", "lightgrey");;
@@ -48,7 +53,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
     .x(d => xScale(d.year))
     .y(d => yScale(d.n));
 
-  svg.selectAll('path')
+  crimeTotalSvg.selectAll('path')
     .data(groups)
     .enter()
     .append('path')
@@ -65,4 +70,24 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
       d3.select(this)
         .style('opacity', 0.2)
     });
+})
+
+d3.json("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighboryearoffensesum.json").then(function (data) {
+  
+  const hierarchy = d3.hierarchy(data)
+    .sum(d => d.n);
+
+  const pack = d3.pack()
+    .size([svg.attr("width"), svg.attr("height")])
+    .padding(5);
+
+  const nodes = svg.selectAll("circle")
+    .data(rootNode.descendants())
+    .join("circle")
+    .attr("cx", d => d.x)
+    .attr("cy", d => d.y)
+    .attr("r", d => d.r)
+    .attr("fill", "steelblue")
+    .attr("cursor", "pointer")
+    .on("click", d => console.log("Clicked", d.data.name));
 })
