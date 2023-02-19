@@ -48,7 +48,9 @@ select {
 
 #report-input {
   background-color: #f4f4f4;
-  border-radius: 2%;
+  padding: 1%;
+  border-radius: 8%;
+  margin-top: 2%;
   margin-left: 10%;
   position: absolute;
 }

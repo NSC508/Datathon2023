@@ -477,7 +477,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimeful
       .tickSizeOuter(0)
       .tickPadding(10))
     .selectAll("text")
-    .attr("transform", "translate(20,10)rotate(45)")
+    .attr("transform", "translate(-20,10)rotate(-90)")
     .style("text-anchor", "end")
     .selectAll("line")
     .attr("stroke", "lightgrey");
@@ -602,16 +602,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimehou
     })
 
   function changeLines(reportType, norm) {
-    crimeHourSvg.selectAll(".chart-lines")
-      .transition()
-      .duration(1000)
-      .style('opactiy', 0)
-      .end()
-      .then(function(d) {
-        crimeHourSvg.html("")
-      })
-    
-    
+    crimeHourSvg.html("")
 
     var userPick;
     if (reportType == "report" && norm) {
@@ -654,7 +645,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimehou
       .data(groups)
       .enter()
       .append('path')
-      .attr('class', 'count-lines')
+      // .attr('class', 'count-lines')
       .attr('d', d => line(d[1]))
       .attr('fill', 'none')
       // .attr('stroke', (d, i) => d3.schemeCategory10[i])
