@@ -581,7 +581,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimehou
 
   const xScale = d3.scaleLinear()
     // .domain([new Date("2008"), new Date("2023")])
-    .domain([0, 24])
+    .domain([1, 24])
     .range([10, width]);
 
   const xAxis = d3.axisBottom(xScale)
@@ -602,7 +602,16 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimehou
     })
 
   function changeLines(reportType, norm) {
-    crimeHourSvg.html("")
+    crimeHourSvg.selectAll(".chart-lines")
+      .transition()
+      .duration(1000)
+      .style('opactiy', 0)
+      .end()
+      .then(function(d) {
+        crimeHourSvg.html("")
+      })
+    
+    
 
     var userPick;
     if (reportType == "report" && norm) {
@@ -616,13 +625,13 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimehou
     }
 
     crimeHourSvg.append("g")
-    .attr("transform", `translate(0, ${height})`)
-    .call(xAxis)
-    .selectAll("line")
-    .attr("stroke", "lightgrey");
+      .attr("transform", `translate(0, ${height})`)
+      .call(xAxis)
+      .selectAll("line")
+      .attr("stroke", "lightgrey");
 
     const yScale = d3.scaleLinear()
-      .domain([0, d3.max(data, function (d) { return +d[userPick]; }) * 1.1])
+      .domain([0, d3.max(data, function (d) { return +d[userPick]; }) * 1.3])
       .range([height, 0]);
 
     const yAxis = d3.axisLeft(yScale)
@@ -645,6 +654,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimehou
       .data(groups)
       .enter()
       .append('path')
+      .attr('class', 'count-lines')
       .attr('d', d => line(d[1]))
       .attr('fill', 'none')
       // .attr('stroke', (d, i) => d3.schemeCategory10[i])
@@ -660,18 +670,18 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimehou
           .attr('fill-opacity', 0.5);
       });
 
-    crimeHourSvg.selectAll('circle')
-      .data(data)
-      .enter()
-      .append('circle')
-      .attr('cx', (d) => {
-        return xScale(d.start_hour)
-      })
-      .attr('cy', (d) => {
-        return yScale(d[userPick])
-      })
-      .attr('r', 2)
-      .attr('stroke-width', 1)
+    // crimeHourSvg.selectAll('circle')
+    //   .data(data)
+    //   .enter()
+    //   .append('circle')
+    //   .attr('cx', (d) => {
+    //     return xScale(d.start_hour)
+    //   })
+    //   .attr('cy', (d) => {
+    //     return yScale(d[userPick])
+    //   })
+    //   .attr('r', 2)
+    //   .attr('stroke-width', 1)
 
 
   }

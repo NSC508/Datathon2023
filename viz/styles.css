@@ -45,3 +45,10 @@ select {
   margin-right: auto;
   margin-left: auto;
 }
+
+#report-input {
+  background-color: #f4f4f4;
+  border-radius: 2%;
+  margin-left: 10%;
+  position: absolute;
+}
