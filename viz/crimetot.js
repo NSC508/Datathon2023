@@ -356,7 +356,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
     const y = event.pageY;
 
     tooltip
-      .html('<u>' + d['Offense.Parent.Group'] + '</u>' + "<br>" + d.n + " counts")
+      .html('<u>' + d['Offense.Parent.Group'] + '</u>' + "<br>" + d.perc + " counts")
       .style("left", (x + 20) + "px")
       .style("top", (y - 30) + "px")
   }
