@@ -54,3 +54,9 @@ select {
   margin-left: 10%;
   position: absolute;
 }
+
+.plot-desc {
+  font-weight: 100;
+  font-style: italic;
+  font-size: 12px;
+}
