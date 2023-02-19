@@ -26,6 +26,12 @@ var crimeBeforeSvg = d3.select("#crime-before")
   .attr('height', height + margin.top + margin.bottom)
   .attr("class", "svg-style");
 
+var crimeAfterSvg = d3.select("#crime-after")
+  .append('svg')
+  .attr('width', width + margin.left + margin.right)
+  .attr('height', height + margin.top + margin.bottom)
+  .attr("class", "svg-style");
+
 var neighborPick = "ALASKA JUNCTION";
 var yearPick = 2008;
 
@@ -79,16 +85,15 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
     .attr('d', d => line(d[1]))
     .attr('fill', 'none')
     .attr('stroke', (d, i) => d3.schemeCategory10[i])
-    .attr('stroke-width', 2)
-    .attr('class', (d) => {
-      return d[0];
+    .attr('stroke-width', 3)
+
+    .on("mouseover", function (d) {
+      d3.select(this).style("fill", d3.select(this).attr('stroke'))
+        .attr('fill-opacity', 1);
     })
-    .style('opactiy', 0.2)
-    .on("mouseover", (d) => {
-      d3.select(this.parentNode).selectAll("path").style("opacity", 1);
-    })
-    .on("mouseout", (d) => {
-      d3.select(this.parentNode).selectAll("path").style("opacity", 1);
+    .on("mouseout", function (d) {
+      d3.select(this).style("fill", "none")
+        .attr('fill-opacity', 0.5);
     });
 })
 
@@ -326,7 +331,22 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
 // });
 
 d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offensesum.csv").then(function (data) {
+  const tooltip = d3.select('body')
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("position", "absolute")
+    .style("border-width", "2px")
+    .style("border-radius", "5px")
+    .style("padding", "5px")
+    .style("width", "auto")
+
   const mouseover = function (event, d) {
+    d3.select(this)
+      .style('fill-opacity', 0.5)
+
     tooltip
       .style("visibility", "visible")
       .style("opacity", 1)
@@ -336,18 +356,21 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
     const y = event.pageY;
 
     tooltip
-      .html('<u>' + d.name + '</u>' + "<br>" + d.value + " counts")
+      .html('<u>' + d['Offense.Parent.Group'] + '</u>' + "<br>" + d.n + " counts")
       .style("left", (x + 20) + "px")
       .style("top", (y - 30) + "px")
   }
   var mouseleave = function (event, d) {
+    d3.select(this)
+      .style('fill-opacity', 0.8)
+
     tooltip
       .style("visibility", "hidden")
       .style("opacity", 0)
   }
   const size = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.n)])
-    .range([10, 13])  // circle will be between 7 and 55 px wide
+    .range([2, 6])  // circle will be between 7 and 55 px wide
 
   var node = crimePackSvg.append("g")
     .selectAll("circle")
@@ -355,7 +378,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
     .enter()
     .append("circle")
     .attr("class", "node")
-    .attr("r", function (d) { return size(d.n) })
+    .attr("r", 0)
     .attr("cx", width / 2)
     .attr("cy", height / 2)
     .style("fill", "#679f51")
@@ -375,8 +398,6 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
     .force("charge", d3.forceManyBody().strength(.4)) // Nodes are attracted one each other of value is > 0
     .force("collide", d3.forceCollide().strength(.2).radius(function (d) { return (size(d.n) + 2) }).iterations(1)) // Force that avoids circle overlapping
 
-  // Apply these forces to the nodes and update their positions.
-  // Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
   simulation
     .nodes(data)
     .on("tick", function (d) {
@@ -385,7 +406,23 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
         .attr("cy", d => d.y)
     });
 
-  // What happens when a circle is dragged?
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      // If the visual is in the viewport, trigger the transition
+      if (entry.isIntersecting) {
+        crimePackSvg.selectAll("circle")
+          .transition()
+          .duration(1000)
+          .attr("r", (d) => {
+            return size(d.n)
+          })
+      }
+    });
+  });
+
+  // Observe the element
+  observer.observe(crimePackSvg.node());
+
   function dragstarted(event, d) {
     if (!event.active) simulation.alphaTarget(.03).restart();
     d.fx = d.x;
@@ -446,5 +483,64 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimebef
     .duration(800)
     .attr("y", d => yAxis(d.n))
     .attr("height", d => height - yAxis(d.n))
-    .delay((d, i) => { console.log(i); return i * 100 })
+    .delay((d, i) => { return i * 100 })
+})
+
+
+d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimeafter2008.csv").then(function (data) {
+  const xAxis = d3.scaleBand()
+    .range([0, width])
+    .domain(data.map(d => d.year))
+    .padding(0.2);
+  crimeAfterSvg.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(xAxis)
+      .tickSizeOuter(0)
+      .tickPadding(10))
+    .selectAll("text")
+    .attr("transform", "translate(20,10)rotate(45)")
+    .style("text-anchor", "end")
+    .selectAll("line")
+    .attr("stroke", "lightgrey");
+
+  const yAxis = d3.scaleLinear()
+    .domain([0, 80000])
+    .range([height, 0]);
+  crimeAfterSvg.append("g")
+    .call(d3.axisLeft(yAxis)
+      .tickSizeInner(-width)
+      .tickSizeOuter(0)
+      .tickPadding(10))
+    .selectAll("line")
+    .attr("stroke", "lightgrey");
+
+  crimeAfterSvg.selectAll("mybar")
+    .data(data)
+    .join("rect")
+    .attr("x", d => xAxis(d.year))
+    .attr("width", xAxis.bandwidth())
+    .attr("fill", "#679f51")
+    .attr("stroke", "black")
+    // no bar at the beginning thus:
+    .attr("height", d => height - yAxis(0)) // always equal to 0
+    .attr("y", d => yAxis(0))
+
+  // Create a new Intersection Observer object
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      // If the visual is in the viewport, trigger the transition
+      if (entry.isIntersecting) {
+        crimeAfterSvg.selectAll("rect")
+          .transition()
+          .duration(800)
+          .attr("y", d => yAxis(d.n))
+          .attr("height", d => height - yAxis(d.n))
+          .delay((d, i) => { return i * 100 })
+      }
+    });
+  });
+
+  // Observe the element
+  observer.observe(crimeAfterSvg.node());
+
 })
