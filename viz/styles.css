@@ -1,3 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300&display=swap');
+
+* {
+  font-family: 'Ubuntu', sans-serif;
+}
+
 div {
+  width: 50%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+#plot2 {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+select {
+  width: auto;
+  height: 1%;
+}
+
+.svg-style {
+  background-color: #f4f4f4;
+  display: block;
   margin: auto;
 }

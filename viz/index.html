@@ -1,21 +1,42 @@
 <!DOCTYPE html>
 <html>
-  <head>
-      <script src="https://d3js.org/d3.v6.min.js"></script>
-      <link rel="stylesheet" type="text/css" href="styles.css">
-  </head>
-  <body>
-    <h1>Crime in Seattle</h1>
-    <div>
-      <div id="crime-tot"></div>
-    </div>
-    <div>
-      <select id="year-select"></select>
-      <select id="neighbor-select"></select>
 
-      <div id="crime-circle"></div>
-    </div>
-    <div id="crime-pack"></div>
-    <script src="crimetot.js"></script>
-  </body>
+<head>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body>
+  <h1>Crime in Seattle</h1>
+  <div id="intro">
+    <p>'DRUG/NARCOTIC OFFENSES', 'LARCENY-THEFT', 'ROBBERY', 'DESTRUCTION/DAMAGE/VANDALISM OF
+      PROPERTY',
+      'DRIVING UNDER THE INFLUENCE', 'FRAUD OFFENSES',
+      'KIDNAPPING/ABDUCTION', 'COUNTERFEITING/FORGERY',
+      'PORNOGRAPHY/OBSCENE MATERIAL', 'EXTORTION/BLACKMAIL',
+      'MOTOR VEHICLE THEFT', 'SEX OFFENSES', 'STOLEN PROPERTY OFFENSES', 'EMBEZZLEMENT', 'WEAPON LAW
+      VIOLATIONS', 'ARSON',
+      'HUMAN TRAFFICKING', 'LIQUOR LAW VIOLATIONS', 'BAD CHECKS',
+      'PROSTITUTION OFFENSES', 'FAMILY OFFENSES, NONVIOLENT',
+      'CURFEW/LOITERING/VAGRANCY VIOLATIONS', 'ANIMAL CRUELTY',
+      'HOMICIDE OFFENSES', 'PEEPING TOM', 'DRUNKENNESS',
+      'SEX OFFENSES, CONSENSUAL', 'BRIBERY', 'GAMBLING OFFENSES',
+      'TRESPASS OF REAL PROPERTY', 'ASSAULT OFFENSES',
+      'BURGLARY/BREAKING&ENTERING'
+    </p>
+  </div>
+  <div id="plot1">
+    <div id="crime-tot"></div>
+  </div>
+  <div id="plot2-selections">
+    <select id="year-select"></select>
+    <select id="neighbor-select"></select>
+  </div>
+  <div id="plot2">
+    <div id="crime-circle"></div>
+  </div>
+  <div id="crime-pack"></div>
+  <script src="crimetot.js"></script>
+</body>
+
 </html>

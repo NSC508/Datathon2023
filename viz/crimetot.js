@@ -5,17 +5,20 @@ const height = 400 - margin.top - margin.bottom;
 var crimeTotalSvg = d3.select("#crime-tot")
   .append('svg')
   .attr('width', 600)
-  .attr('height', 400);
+  .attr('height', 400)
+  .attr("class", "svg-style");
 
 var crimePackSvg = d3.select("#crime-pack")
   .append('svg')
   .attr('width', 600)
-  .attr('height', 400);
+  .attr('height', 400)
+  .attr("class", "svg-style");
 
 var crimeCriclesSvg = d3.select("#crime-circle")
   .append('svg')
   .attr('width', 600)
-  .attr('height', 400);
+  .attr('height', 400)
+  .attr("class", "svg-style");
 
 var neighborPick = "ALASKA JUNCTION";
 var yearPick = 2008;
@@ -69,14 +72,15 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
     .attr('fill', 'none')
     .attr('stroke', (d, i) => d3.schemeCategory10[i])
     .attr('stroke-width', 2)
+    .attr('class', (d) => {
+      return d[0];
+    })
     .style('opactiy', 0.2)
     .on("mouseover", (d) => {
-      d3.select(this)
-        .style('opacity', 1)
+      d3.select(this.parentNode).selectAll("path").style("opacity", 1);
     })
     .on("mouseout", (d) => {
-      d3.select(this)
-        .style('opacity', 0.2)
+      d3.select(this.parentNode).selectAll("path").style("opacity", 1);
     });
 })
 
@@ -172,15 +176,17 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
 // });
 
 d3.json("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighboryearoffensesum.json").then(function (data) {
-  const Tooltip = d3.select("#my_dataviz")
+  const tooltip = d3.select("#plot2")
     .append("div")
     .style("opacity", 0)
     .attr("class", "tooltip")
     .style("background-color", "white")
     .style("border", "solid")
+    .style("position", "absolute")
     .style("border-width", "2px")
     .style("border-radius", "5px")
     .style("padding", "5px")
+    .style("width", "auto")
 
   createPoints(data, yearPick, neighborPick)
 
@@ -232,32 +238,40 @@ d3.json("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbo
 
   function createPoints(data, yearPick, neighborPick) {
     const mouseover = function (event, d) {
-      Tooltip
+      tooltip
+        .style("visibility", "visible")
         .style("opacity", 1)
     }
     const mousemove = function (event, d) {
-      Tooltip
-        .html('<u>' + d.key + '</u>' + "<br>" + d.value + " inhabitants")
-        .style("left", (event.x / 2 + 20) + "px")
-        .style("top", (event.y / 2 - 30) + "px")
+      const x = event.pageX;
+      const y = event.pageY;
+
+      tooltip
+        .html('<u>' + d.name + '</u>' + "<br>" + d.value + " counts")
+        .style("left", (x + 20) + "px")
+        .style("top", (y - 30) + "px")
     }
     var mouseleave = function (event, d) {
-      Tooltip
+      tooltip
+        .style("visibility", "hidden")
         .style("opacity", 0)
     }
     var dataFilter = data.children.filter(function (d) { return d.name == yearPick })[0].children.filter(function (d) { return d.name == neighborPick })[0].children;
 
-    console.log(dataFilter)
+    const size = d3.scaleLinear()
+      .domain([0, d3.max(dataFilter, d => d.value)])
+      .range([7, 55])  // circle will be between 7 and 55 px wide
+
     var node = crimeCriclesSvg.append("g")
       .selectAll("circle")
       .data(dataFilter)
       .enter()
       .append("circle")
       .attr("class", "node")
-      .attr("r", function (d) { return d.value })
+      .attr("r", function (d) { return size(d.value) })
       .attr("cx", width / 2)
       .attr("cy", height / 2)
-      .style("fill", (d, i) => { d3.schemeCategory10[i] })
+      .style("fill", "#679f51")
       .style("fill-opacity", 0.8)
       .attr("stroke", "black")
       .style("stroke-width", 1)
@@ -272,7 +286,7 @@ d3.json("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbo
     const simulation = d3.forceSimulation()
       .force("center", d3.forceCenter().x(width / 2).y(height / 2)) // Attraction to the center of the svg area
       .force("charge", d3.forceManyBody().strength(.1)) // Nodes are attracted one each other of value is > 0
-      .force("collide", d3.forceCollide().strength(.2).radius(function (d) { return ((d.value) + 3) }).iterations(1)) // Force that avoids circle overlapping
+      .force("collide", d3.forceCollide().strength(.2).radius(function (d) { return (size(d.value) + 3) }).iterations(1)) // Force that avoids circle overlapping
 
     // Apply these forces to the nodes and update their positions.
     // Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
