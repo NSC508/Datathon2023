@@ -32,6 +32,12 @@ var crimeAfterSvg = d3.select("#crime-after")
   .attr('height', height + margin.top + margin.bottom)
   .attr("class", "svg-style");
 
+var crimeHourSvg = d3.select("#crime-hour")
+  .append('svg')
+  .attr('width', width + margin.left + margin.right)
+  .attr('height', height + margin.top + margin.bottom)
+  .attr("class", "svg-style");
+
 var neighborPick = "ALASKA JUNCTION";
 var yearPick = 2008;
 
@@ -46,7 +52,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
     .range([10, width]);
 
   const yScale = d3.scaleLinear()
-    .domain([0, d3.max(data, function (d) { return +d.n; })*1.3])
+    .domain([0, d3.max(data, function (d) { return +d.n; }) * 1.3])
     .range([height, 0]);
 
   const xAxis = d3.axisBottom(xScale)
@@ -459,7 +465,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
 });
 
 d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimefull.csv").then(function (data) {
-  data = data.filter(function(d) { return d.year != "NA"})
+  data = data.filter(function (d) { return d.year != "NA" })
 
   const xAxis = d3.scaleBand()
     .range([0, width])
@@ -568,5 +574,77 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimeaft
 
   // Observe the element
   observer.observe(crimeAfterSvg.node());
+})
+
+d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimehour.csv").then(function (data) {
+  const xScale = d3.scaleLinear()
+    // .domain([new Date("2008"), new Date("2023")])
+    .domain([0, 24])
+    .range([10, width]);
+
+  const yScale = d3.scaleLinear()
+    .domain([0, d3.max(data, function (d) { return +d.n; }) * 1.3])
+    .range([height, 0]);
+
+  const xAxis = d3.axisBottom(xScale)
+    .ticks(15)
+    .tickFormat(d => d)
+    .tickSizeInner(-height)
+    .tickSizeOuter(0)
+    .tickPadding(10);
+
+  const yAxis = d3.axisLeft(yScale)
+    .tickSizeInner(-width)
+    .tickSizeOuter(0)
+    .tickPadding(10);
+
+  crimeTotalSvg.append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(xAxis)
+    .selectAll("line")
+    .attr("stroke", "lightgrey");
+
+  crimeTotalSvg.append("g")
+    // .attr("transform", "translate(0,0)")
+    .call(yAxis)
+    .selectAll("line")
+    .attr("stroke", "lightgrey");
+
+  const line = d3.line()
+    // .x(d => xScale(parseYear(d.year)))
+    .x(d => xScale(d.year))
+    .y(d => yScale(d.n));
+
+  crimeTotalSvg.selectAll('path')
+    .data(groups)
+    .enter()
+    .append('path')
+    .attr('d', d => line(d[1]))
+    .attr('fill', 'none')
+    // .attr('stroke', (d, i) => d3.schemeCategory10[i])
+    .attr('stroke', 'black')
+    .attr('stroke-width', 1)
+
+    .on("mouseover", function (d) {
+      d3.select(this).style("fill", d3.select(this).attr('stroke'))
+        .attr('fill-opacity', 1);
+    })
+    .on("mouseout", function (d) {
+      d3.select(this).style("fill", "none")
+        .attr('fill-opacity', 0.5);
+    });
+
+  crimeTotalSvg.selectAll('circle')
+    .data(data)
+    .enter()
+    .append('circle')
+    .attr('cx', (d) => {
+      return xScale(d.year)
+    })
+    .attr('cy', (d) => {
+      return yScale(d.n)
+    })
+    .attr('r', 2)
+    .attr('stroke-width', 1)
 
 })
