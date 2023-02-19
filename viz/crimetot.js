@@ -1,4 +1,4 @@
-const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+const margin = { top: 20, right: 20, bottom: 20, left: 20 };
 const width = 600 - margin.left - margin.right;
 const height = 400 - margin.top - margin.bottom;
 
@@ -20,6 +20,12 @@ var crimeCriclesSvg = d3.select("#crime-circle")
   .attr('height', height + margin.top + margin.bottom)
   .attr("class", "svg-style");
 
+var crimeBeforeSvg = d3.select("#crime-before")
+  .append('svg')
+  .attr('width', width + margin.left + margin.right)
+  .attr('height', height + margin.top + margin.bottom)
+  .attr("class", "svg-style");
+
 var neighborPick = "ALASKA JUNCTION";
 var yearPick = 2008;
 
@@ -34,10 +40,11 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
     .range([10, width]);
 
   const yScale = d3.scaleLinear()
-    .domain([0, d3.max(data, function(d) { return +d.n; })])
+    .domain([0, d3.max(data, function (d) { return +d.n; })])
     .range([height, 0]);
 
   const xAxis = d3.axisBottom(xScale)
+    .ticks(15)
     .tickFormat(d => d)
     .tickSizeInner(-height)
     .tickSizeOuter(0)
@@ -394,3 +401,50 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
     d.fy = null;
   }
 });
+
+d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimebefore2008.csv").then(function (data) {
+  const xAxis = d3.scaleBand()
+    .range([0, width])
+    .domain(data.map(d => d.year))
+    .padding(0.2);
+  crimeBeforeSvg.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(xAxis)
+      .tickSizeOuter(0)
+      .tickPadding(10))
+    .selectAll("text")
+    .attr("transform", "translate(20,10)rotate(45)")
+    .style("text-anchor", "end")
+    .selectAll("line")
+    .attr("stroke", "lightgrey");
+
+  const yAxis = d3.scaleLinear()
+    .domain([0, 1200])
+    .range([height, 0]);
+  crimeBeforeSvg.append("g")
+    .call(d3.axisLeft(yAxis)
+      .tickSizeInner(-width)
+      .tickSizeOuter(0)
+      .tickPadding(10))
+    .selectAll("line")
+    .attr("stroke", "lightgrey");
+
+  crimeBeforeSvg.selectAll("mybar")
+    .data(data)
+    .join("rect")
+    .attr("x", d => xAxis(d.year))
+    .attr("width", xAxis.bandwidth())
+    .attr("fill", "#679f51")
+    .attr("stroke", "black")
+    // no bar at the beginning thus:
+    .attr("height", d => height - yAxis(0)) // always equal to 0
+    .attr("y", d => yAxis(0))
+
+  // Animation
+  crimeBeforeSvg.selectAll("rect")
+    .transition()
+    .duration(800)
+    .attr("y", d => yAxis(d.n))
+    .attr("height", d => height - yAxis(d.n))
+    .delay((d, i) => { console.log(i); return i * 100 })
+})
