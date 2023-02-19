@@ -12,7 +12,13 @@ var crimePackSvg = d3.select("#crime-pack")
   .attr('width', 500)
   .attr('height', 300);
 
-var crimeCricles = d3.select("#crime-circle")
+var crimeCriclesSvg = d3.select("#crime-circle")
+  .append('svg')
+  .attr('width', 500)
+  .attr('height', 300);
+
+var neighborPick = "ALASKA JUNCTION";
+var yearPick = 2008;
 
 const parseYear = d3.timeParse("%Y");
 
@@ -166,5 +172,109 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
 // });
 
 d3.json("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighboryearoffensesum.json").then(function (data) {
-  console.log(data.children)
+  createPoints(data, yearPick, neighborPick)
+
+  var years = data.children
+  var neighborhoods = data.children.filter(function (d) { return d.name == 2008 })[0].children
+
+  var yearSelect = d3.select("#year-select")
+
+  yearSelect
+    .on("change", function (d) {
+      crimeCriclesSvg.html("")
+      var yearPick = d3.select(this).property("value");
+      createPoints(data, yearPick, neighborPick)
+    });
+
+
+  var yearSelect = d3.select("#year-select")
+    .selectAll("option")
+    .data(years)
+    .enter()
+    .append("option")
+    .attr("value", function (d) { return d.name; })
+    .text(function (d) { return d.name; });
+
+  var neighborSelect = d3.select("#neighbor-select")
+
+  neighborSelect
+    .on("change", function (d) {
+      crimeCriclesSvg.html("")
+      var neighborPick = d3.select(this).property("value");
+      createPoints(data, yearPick, neighborPick)
+    });
+
+  neighborSelect.selectAll("option")
+    .data(neighborhoods)
+    .enter()
+    .append("option")
+    .attr("value", function (d) { return d.name; })
+    .text(function (d) { return d.name; });
+
+  const xScale = d3.scaleLinear()
+    // .domain([new Date("2008"), new Date("2023")])
+    .domain([0, 2023])
+    .range([10, width]);
+
+  var size = d3.scaleLinear()
+    .domain([0, 200])
+    .range([7, 55])  // circle will be between 7 and 55 px wide
+
+  function createPoints(data, yearPick, neighborPick) {
+    console.log(data)
+    var dataFilter = data.children.filter(function (d) { return d.name == yearPick })[0].children.filter(function (d) { return d.name == neighborPick })[0].children;
+
+    console.log(dataFilter)
+    var node = crimeCriclesSvg.append("g")
+      .selectAll("circle")
+      .data(dataFilter)
+      .enter()
+      .append("circle")
+      .attr("class", "node")
+      .attr("r", function (d) { return d.value })
+      .attr("cx", width / 2)
+      .attr("cy", height / 2)
+      // .style("fill", function (d) { return color(d.region) })
+      .style("fill-opacity", 0.8)
+      .attr("stroke", "black")
+      .style("stroke-width", 1)
+      .call(d3.drag() // call specific function when circle is dragged
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended));
+
+    var simulation = d3.forceSimulation()
+      .force("center", d3.forceCenter().x(width / 2).y(height / 2)) // Attraction to the center of the svg area
+      .force("charge", d3.forceManyBody().strength(.1)) // Nodes are attracted one each other of value is > 0
+      .force("collide", d3.forceCollide().strength(.2).radius(function (d) { return (size(d.value) + 3) }).iterations(1)) // Force that avoids circle overlapping
+
+    // Apply these forces to the nodes and update their positions.
+    // Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
+    simulation
+      .nodes(data)
+      .on("tick", function (d) {
+        node
+          .attr("cx", function (d) { return d.x; })
+          .attr("cy", function (d) { return d.y; })
+      });
+
+    // What happens when a circle is dragged?
+    function dragstarted(d) {
+      if (!d3.event.active) simulation.alphaTarget(.03).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+    function dragged(d) {
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
+    function dragended(d) {
+      if (!d3.event.active) simulation.alphaTarget(.03);
+      d.fx = null;
+      d.fy = null;
+    }
+
+  }
+
 });
+
