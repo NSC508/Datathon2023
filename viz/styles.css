@@ -45,3 +45,18 @@ select {
   margin-right: auto;
   margin-left: auto;
 }
+
+#report-input {
+  background-color: #f4f4f4;
+  padding: 1%;
+  border-radius: 8%;
+  margin-top: 2%;
+  margin-left: 10%;
+  position: absolute;
+}
+
+.plot-desc {
+  font-weight: 100;
+  font-style: italic;
+  font-size: 12px;
+}
