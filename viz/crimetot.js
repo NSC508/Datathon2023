@@ -458,7 +458,9 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
   }
 });
 
-d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimebefore2008.csv").then(function (data) {
+d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimefull.csv").then(function (data) {
+  data = data.filter(function(d) { return d.year != "NA"})
+
   const xAxis = d3.scaleBand()
     .range([0, width])
     .domain(data.map(d => d.year))
@@ -475,7 +477,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimebef
     .attr("stroke", "lightgrey");
 
   const yAxis = d3.scaleLinear()
-    .domain([0, 1200])
+    .domain([0, 80000])
     .range([height, 0]);
   crimeBeforeSvg.append("g")
     .call(d3.axisLeft(yAxis)
