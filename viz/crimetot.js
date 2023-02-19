@@ -1,21 +1,21 @@
 const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-const width = 500 - margin.left - margin.right;
-const height = 300 - margin.top - margin.bottom;
+const width = 600 - margin.left - margin.right;
+const height = 400 - margin.top - margin.bottom;
 
 var crimeTotalSvg = d3.select("#crime-tot")
   .append('svg')
-  .attr('width', 500)
-  .attr('height', 300);
+  .attr('width', 600)
+  .attr('height', 400);
 
 var crimePackSvg = d3.select("#crime-pack")
   .append('svg')
-  .attr('width', 500)
-  .attr('height', 300);
+  .attr('width', 600)
+  .attr('height', 400);
 
 var crimeCriclesSvg = d3.select("#crime-circle")
   .append('svg')
-  .attr('width', 500)
-  .attr('height', 300);
+  .attr('width', 600)
+  .attr('height', 400);
 
 var neighborPick = "ALASKA JUNCTION";
 var yearPick = 2008;
@@ -31,7 +31,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
     .range([10, width]);
 
   const yScale = d3.scaleLinear()
-    .domain([0, 7036])
+    .domain([0, 8000])
     .range([height, 0]);
 
   const xAxis = d3.axisBottom(xScale)
@@ -172,6 +172,16 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
 // });
 
 d3.json("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighboryearoffensesum.json").then(function (data) {
+  const Tooltip = d3.select("#my_dataviz")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "2px")
+    .style("border-radius", "5px")
+    .style("padding", "5px")
+
   createPoints(data, yearPick, neighborPick)
 
   var years = data.children
@@ -221,7 +231,20 @@ d3.json("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbo
     .range([7, 55])  // circle will be between 7 and 55 px wide
 
   function createPoints(data, yearPick, neighborPick) {
-    console.log(data)
+    const mouseover = function (event, d) {
+      Tooltip
+        .style("opacity", 1)
+    }
+    const mousemove = function (event, d) {
+      Tooltip
+        .html('<u>' + d.key + '</u>' + "<br>" + d.value + " inhabitants")
+        .style("left", (event.x / 2 + 20) + "px")
+        .style("top", (event.y / 2 - 30) + "px")
+    }
+    var mouseleave = function (event, d) {
+      Tooltip
+        .style("opacity", 0)
+    }
     var dataFilter = data.children.filter(function (d) { return d.name == yearPick })[0].children.filter(function (d) { return d.name == neighborPick })[0].children;
 
     console.log(dataFilter)
@@ -234,45 +257,50 @@ d3.json("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbo
       .attr("r", function (d) { return d.value })
       .attr("cx", width / 2)
       .attr("cy", height / 2)
-      // .style("fill", function (d) { return color(d.region) })
+      .style("fill", (d, i) => { d3.schemeCategory10[i] })
       .style("fill-opacity", 0.8)
       .attr("stroke", "black")
       .style("stroke-width", 1)
+      .on("mouseover", mouseover) // What to do when hovered
+      .on("mousemove", mousemove)
+      .on("mouseleave", mouseleave)
       .call(d3.drag() // call specific function when circle is dragged
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended));
 
-    var simulation = d3.forceSimulation()
+    const simulation = d3.forceSimulation()
       .force("center", d3.forceCenter().x(width / 2).y(height / 2)) // Attraction to the center of the svg area
       .force("charge", d3.forceManyBody().strength(.1)) // Nodes are attracted one each other of value is > 0
-      .force("collide", d3.forceCollide().strength(.2).radius(function (d) { return (size(d.value) + 3) }).iterations(1)) // Force that avoids circle overlapping
+      .force("collide", d3.forceCollide().strength(.2).radius(function (d) { return ((d.value) + 3) }).iterations(1)) // Force that avoids circle overlapping
 
     // Apply these forces to the nodes and update their positions.
     // Once the force algorithm is happy with positions ('alpha' value is low enough), simulations will stop.
     simulation
-      .nodes(data)
+      .nodes(dataFilter)
       .on("tick", function (d) {
         node
-          .attr("cx", function (d) { return d.x; })
-          .attr("cy", function (d) { return d.y; })
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y)
       });
 
     // What happens when a circle is dragged?
-    function dragstarted(d) {
-      if (!d3.event.active) simulation.alphaTarget(.03).restart();
+    function dragstarted(event, d) {
+      if (!event.active) simulation.alphaTarget(.03).restart();
       d.fx = d.x;
       d.fy = d.y;
     }
-    function dragged(d) {
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
     }
-    function dragended(d) {
-      if (!d3.event.active) simulation.alphaTarget(.03);
+    function dragended(event, d) {
+      if (!event.active) simulation.alphaTarget(.03);
       d.fx = null;
       d.fy = null;
     }
+
+
 
   }
 
