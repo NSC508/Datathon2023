@@ -90,7 +90,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
     .append('path')
     .attr('d', d => line(d[1]))
     .attr('fill', 'none')
-    // .attr('stroke', (d, i) => d3.schemeCategory10[i])
+    .attr('stroke', (d, i) => d3.schemeCategory10[i])
     .attr('stroke', 'black')
     .attr('stroke-width', 1)
 
@@ -648,7 +648,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimehou
       // .attr('class', 'count-lines')
       .attr('d', d => line(d[1]))
       .attr('fill', 'none')
-      // .attr('stroke', (d, i) => d3.schemeCategory10[i])
+      .attr('stroke', (d, i) => d3.schemeCategory10[i])
       .attr('stroke', 'black')
       .attr('stroke-width', 1)
 
