@@ -46,7 +46,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
     .range([10, width]);
 
   const yScale = d3.scaleLinear()
-    .domain([0, d3.max(data, function (d) { return +d.n; })])
+    .domain([0, d3.max(data, function (d) { return +d.n; })*1.3])
     .range([height, 0]);
 
   const xAxis = d3.axisBottom(xScale)
@@ -84,8 +84,9 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
     .append('path')
     .attr('d', d => line(d[1]))
     .attr('fill', 'none')
-    .attr('stroke', (d, i) => d3.schemeCategory10[i])
-    .attr('stroke-width', 3)
+    // .attr('stroke', (d, i) => d3.schemeCategory10[i])
+    .attr('stroke', 'black')
+    .attr('stroke-width', 1)
 
     .on("mouseover", function (d) {
       d3.select(this).style("fill", d3.select(this).attr('stroke'))
@@ -95,6 +96,19 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighbor
       d3.select(this).style("fill", "none")
         .attr('fill-opacity', 0.5);
     });
+
+  crimeTotalSvg.selectAll('circle')
+    .data(data)
+    .enter()
+    .append('circle')
+    .attr('cx', (d) => {
+      return xScale(d.year)
+    })
+    .attr('cy', (d) => {
+      return yScale(d.n)
+    })
+    .attr('r', 2)
+    .attr('stroke-width', 1)
 })
 
 // d3.json("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/neighboryearoffensesum.json").then(function (data) {
@@ -356,7 +370,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
     const y = event.pageY;
 
     tooltip
-      .html('<u>' + d['Offense.Parent.Group'] + '</u>' + "<br>" + d.perc + " counts")
+      .html('<u>' + d['Offense.Parent.Group'] + '</u>' + "<br>" + d.perc + "%")
       .style("left", (x + 20) + "px")
       .style("top", (y - 30) + "px")
   }
@@ -370,7 +384,7 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
   }
   const size = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.n)])
-    .range([2, 6])  // circle will be between 7 and 55 px wide
+    .range([2, 5])  // circle will be between 7 and 55 px wide
 
   var node = crimePackSvg.append("g")
     .selectAll("circle")
@@ -416,6 +430,11 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/offenses
           .attr("r", (d) => {
             return size(d.n)
           })
+      } else {
+        crimePackSvg.selectAll("circle")
+          .transition()
+          .duration(1000)
+          .attr("r", 0)
       }
     });
   });
@@ -536,6 +555,11 @@ d3.csv("https://raw.githubusercontent.com/NSC508/Datathon2023/main/data/crimeaft
           .attr("y", d => yAxis(d.n))
           .attr("height", d => height - yAxis(d.n))
           .delay((d, i) => { return i * 100 })
+      } else {
+        crimeAfterSvg.selectAll("mybar")
+          // no bar at the beginning thus:
+          .attr("height", d => height - yAxis(0)) // always equal to 0
+          .attr("y", d => yAxis(0))
       }
     });
   });
