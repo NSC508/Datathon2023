@@ -1,13 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;400&display=swap');
 
 * {
-  font-family: 'Ubuntu', sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
 }
 
-div {
-  width: 50%;
+p {
+  font-weight: 100;
+  font-size: 18px;
+}
+
+.plot {
+  width: 60%;
   margin-right: auto;
   margin-left: auto;
+}
+
+h1 {
+  text-align: center;
+}
+
+h3 {
+  font-weight: 400;
+  font-size: 24px;
 }
 
 #plot2 {
@@ -21,7 +35,13 @@ select {
 }
 
 .svg-style {
-  background-color: #f4f4f4;
+  /* background-color: #f4f4f4; */
   display: block;
   margin: auto;
+}
+
+.text {
+  width: 45%;
+  margin-right: auto;
+  margin-left: auto;
 }
